@@ -24,8 +24,9 @@ app.get('/add/:name', function(req, res) {
 });
 
 app.get('/alldata', function(req, res) {
+  var data = "Maybe nothing fetched";
   mongo.Db.connect(mongoUri, function (err, db) {
-    var data = db.first.find();
+    data = db.first.find();
   });
   res.send(data);
 });
