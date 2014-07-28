@@ -10,7 +10,7 @@ app.get('/', function(req, res) {
 });
 
 app.get('/:name', function(req, res) {
-  res.send('Hello, ' + req.name + '!');
+  res.send('Hello, ' + req.param("name") + '!');
 });
 
 var port = Number(process.env.PORT || 5000);
