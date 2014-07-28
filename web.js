@@ -16,7 +16,7 @@ app.get('/', function(req, res) {
 app.get('/add/:name', function(req, res) {
   mongo.Db.connect(mongoUri, function (err, db) {
     db.collection('first', function(er, collection) {
-      collection.insert({'name':"value", function (er,rs){
+      collection.insert({'name':req.param("name")}, {safe: true}, function (er,rs){
       });
     });
   });
