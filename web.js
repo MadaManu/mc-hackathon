@@ -25,8 +25,9 @@ app.get('/add/:name', function(req, res) {
 
 app.get('/alldata', function(req, res) {
   mongo.Db.connect(mongoUri, function (err, db) {
-    res.send(db.first.find());
+    var data = db.first.find();
   });
+  res.send(data);
 });
 
 var port = Number(process.env.PORT || 5000);
