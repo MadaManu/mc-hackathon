@@ -1,0 +1,18 @@
+{
+  "name": "carpass-api",
+  "version": "0.0.0",
+  "description": "",
+  "main": "web.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.7.2",
+    "logfmt": "^1.1.2"
+  }
+  "engines": {
+    "node": "0.10.x"
+  }
+}
