@@ -10,7 +10,7 @@ var mongoUri = process.env.MONGOLAB_URI ||
 app.use(logfmt.requestLogger());
 
 app.get('/', function(req, res) {
-  res.send('Fuck off!!!');
+  res.send('This is the magic laptop speaking!!!');
 });
 
 app.get('/add/:name', function(req, res) {
