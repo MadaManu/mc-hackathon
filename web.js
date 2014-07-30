@@ -2,7 +2,7 @@
  var express = require("express");
 // var fortune = require("fortune");
 // app=fortune({adapter: 'mongodb'});
-//var logfmt = require("logfmt");
+var logfmt = require("logfmt");
 
 //var datastore = require("mongodb");
 //var db = new datastore();
