@@ -1,9 +1,9 @@
-
- var express = require("express");
-// var fortune = require("fortune");
-// app=fortune({adapter: 'mongodb'});
+var express = require("express");
 var logfmt = require("logfmt");
 
+
+// var fortune = require("fortune");
+// app=fortune({adapter: 'mongodb'});
 //var datastore = require("mongodb");
 //var db = new datastore();
 
