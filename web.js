@@ -1,23 +1,23 @@
 
-// var express = require("express");
-var fortune = require("fortune");
+ var express = require("express");
+// var fortune = require("fortune");
 // app=fortune({adapter: 'mongodb'});
-var logfmt = require("logfmt");
+//var logfmt = require("logfmt");
 
-var datastore = require("mongodb");
-var db = new datastore();
+//var datastore = require("mongodb");
+//var db = new datastore();
 
-// var app = express();
+var app = express();
 // var mongo = require('mongodb');
 // var mongoUri = process.env.MONGOLAB_URI ||
 //   process.env.MONGOHQ_URL ||
 //   'mongodb://localhost/mydb';
 
-// app.use(logfmt.requestLogger());
+app.use(logfmt.requestLogger());
 
-// app.get('/', function(req, res) {
-//   res.send('Fuck off!!!');
-// });
+app.get('/', function(req, res) {
+  res.send('mada :) !!!');
+});
 
 // app.get('/add/:name', function(req, res) {
 //  mongo.Db.connect(mongoUri, function (err, db) {
