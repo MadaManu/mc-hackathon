@@ -1,0 +1,1 @@
+git fetch heroku master && git pull heroku master;
