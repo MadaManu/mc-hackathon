@@ -4,14 +4,12 @@ var logfmt = require("logfmt");
 
 // var fortune = require("fortune");
 // app=fortune({adapter: 'mongodb'});
-//var datastore = require("mongodb");
+var datastore = require("mongodb");
 //var db = new datastore();
 
 var app = express();
-// var mongo = require('mongodb');
-// var mongoUri = process.env.MONGOLAB_URI ||
-//   process.env.MONGOHQ_URL ||
-//   'mongodb://localhost/mydb';
+var mongo = require('mongodb');
+var mongoUri = mongodb://<dbuser>:<dbpassword>@ds053419.mongolab.com:53419/heroku_app27894287
 
 app.use(logfmt.requestLogger());
 
