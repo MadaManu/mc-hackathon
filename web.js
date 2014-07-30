@@ -37,8 +37,8 @@ app.get('/', function(req, res) {
 //  res.send(data);
 // });
 
-// var port = Number(process.env.PORT || 5000);
-// app.listen(port, function() {
-//  console.log("Listening on " + port);
-//});
+var port = Number(process.env.PORT || 5000);
+app.listen(port, function() {
+ console.log("Listening on " + port);
+});
 
