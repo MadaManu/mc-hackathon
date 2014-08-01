@@ -20,7 +20,7 @@ mongoose.connect(config.mongoUri);
 // 	});
 // });
 
-var User = require('./models/user');
+// var User = require('./models/user');
 
 app.use(bodyParser());
 app.use(logfmt.requestLogger());
@@ -57,7 +57,7 @@ app.get('/users/:id', function(req, res) {
 	User.findById(req.params.id, function(err, User) {
 		if (err)
 			res.send(err);
-		res.json(User);
+		res.json(user);
 	});
 });
 
