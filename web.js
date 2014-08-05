@@ -26,23 +26,51 @@ app.use(bodyParser());
 app.use(logfmt.requestLogger());
 
 app.get('/', function(req, res) {
-  res.json("Wellcome to the api!");
+  res.json("Welcome to the api!");
 });
 
 
-app.post('/users', function(req, res) {
-	var user = new User(); 		// create a new instance of the User model
-		// console.dir(req.body.name);
-		user.name = req.body.name;  // set the bears name (comes from the request)
-		user.password = req.body.password;
+app.post('/new', function(req, res) {
 
-		user.save(function(err) {
+	// Attempt to update user if there is an id present
+	// If an id is found this function will execute
+	// and update the user with the id
+	User.findById(req.body.id, function(err, user) {
+		if (err)
+		{
+			res.send(err);
+		}
+
+		user.name = req.body.name;
+		user.save(function (err){
 			if (err) {
 				res.send(err);
 			}
-			res.json({ message: 'User created!' });
 		});
+		res.json(user);
+		
+	});
+
+	var user = new User(); 		// create a new instance of the User model
+		// console.dir(req.body.name);
+		if (!req.body.name) {
+			var error_message = {code: '2002', message: 'No valid username'}
+			res.send(error_message);
+		} 
+		
+		else {
+			user.name = req.body.name;  // set the bears name (comes from the request)
+			user.password = req.body.password;
+			user.save(function(err) {
+				if (err) {
+					res.send(err);
+				}
+				res.json({ message: 'User created!' });
+			});
+		}
+		
 });
+
 
 app.get('/users', function(req, res) {
 	User.find(function(err, users) {
@@ -53,11 +81,21 @@ app.get('/users', function(req, res) {
 });
 
 
-app.get('/users/:id', function(req, res) {
-	User.findById(req.params.id, function(err, User) {
+app.post('/update', function(req, res) {
+	User.findById(req.body.id, function(err, user) {
 		if (err)
+		{
 			res.send(err);
+		}
+
+		user.name = req.body.name;
+		user.save(function (err){
+			if (err) {
+				res.send(err);
+			}
+		});
 		res.json(user);
+		
 	});
 });
 
