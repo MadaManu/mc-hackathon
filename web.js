@@ -99,7 +99,7 @@ app.post('/user', function(req, res)
 });
 
 
-app.get('/users', function(req, res) {
+app.get('/user', function(req, res) {
 	User.find(function(err, users) {
 		if (err)
 			res.send(err);
@@ -107,8 +107,6 @@ app.get('/users', function(req, res) {
 	});
 });
 
-// MADA Doing a funny Test :) 
-// add some more magic to this 
 
 app.post('/update', function(req, res) {
 	User.findById(req.body.id, function(err, user) {
