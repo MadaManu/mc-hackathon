@@ -37,43 +37,44 @@ app.post('/user', function(req, res)
 	// If an id is found this function will execute
 	// and update the user with the id
 
-	if(req.body.id != null)
-	{ // update of existing user
-		User.findById(req.body.id, function(err, user) 
-		{
-			if (err)
-			{
+	if(req.body.id) { 
+	// update of existing user
+		User.findById(req.body.id, function(err, user) {
+			if (err) {
 				res.send(err);
 			}
-
-			user.name = req.body.name;
-			user.password = req.body.password;
-			user.creditCardNumber = req.body.creditCardNumber;
-			user.expMonth = req.body.expMonth;
-			user.expYear = req.body.expYear;
-			user.cardVeriCode = req.body.cardVeriCode;
+			// only rewrite new values
+			if (req.body.name) {
+				user.name = req.body.name;
+			}
+			if (req.body.password){
+				user.password = req.body.password;
+			}
+			if (req.body.creditCardNumber) {
+				user.creditCardNumber = req.body.creditCardNumber;
+				user.expMonth = req.body.expMonth;	
+				user.expYear = req.body.expYear;
+				user.cardVeriCode = req.body.cardVeriCode;
+			}
 			// req.body.removalPlate boolean - true or false
-			console.log(req.body.removalPlate);
-			if (eval(req.body.removalPlate)) {
-				user.numberPlates.remove(req.body.numberPlate);
-			} else {
-				user.numberPlates.push(req.body.numberPlate);
+			if (req.body.removalPlate && req.body.numberPlate) {
+				if (eval(req.body.removalPlate)) {
+					user.numberPlates.remove(req.body.numberPlate);
+				} else {
+					user.numberPlates.push(req.body.numberPlate);
+				}
 			}
 
-			user.save(function (err)
-			{
-				if (err) 
-				{
+			user.save(function (err) {
+				if (err) {
 					res.send(err);
 				}
 			});
 
 			res.json(user);
 		});
-	}
-
-	else
-	{ // creation of user
+	} else { 
+	// creation of user
 
 		// make sure the user is having the required data
 		// a name would be usefull, credit card and other details
@@ -110,8 +111,7 @@ app.get('/user', function(req, res) {
 
 app.post('/update', function(req, res) {
 	User.findById(req.body.id, function(err, user) {
-		if (err)
-		{
+		if (err) {
 			res.send(err);
 		}
 
@@ -131,17 +131,19 @@ app.post('/payment', function(req, res)
 	// numberPlate 		> the number plate of the car to make the payment
 	// amount			> amount of the payment IN CENTS
 
-
-	User.find({numberPlates: req.body.numberPlate}, function(err, user) {
+// make sure there's a handle for the no users found and also that there can no be the same number plate in the system twice
+	User.find({numberPlates: req.body.numberPlate}, function(err, users) {
+		// check that there is only one user returned from the DB
+		var user = users[0];
 		config.SimplifyPay.payment.create({
 	    	amount : req.body.amount,
 	    	description : "Test payment",
 	    	card : 
 	    	{
-	       		expMonth : user[0].expMonth,
-	       		expYear : user[0].expYear,
-	       		cvc : user[0].cardVeriCode,
-	       		number : user[0].creditCardNumber
+	       		expMonth : user.expMonth,
+	       		expYear : user.expYear,
+	       		cvc : user.cardVeriCode,
+	       		number : user.creditCardNumber
 	    	},
 	    	currency : "USD"
 		}, 
