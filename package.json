@@ -13,7 +13,8 @@
     "express": "^4.7.2",
     "logfmt": "~1.1.2",
     "mongodb": "^1.4.7",
-    "mongoose": "^3.8.14"
+    "mongoose": "^3.8.14",
+    "simplify-commerce": "~1.1.2"
   },
   "engines": {
     "node": "0.10.x"

@@ -30,45 +30,60 @@ app.get('/', function(req, res) {
 });
 
 
-app.post('/new', function(req, res) {
+app.post('/user', function(req, res) 
+{
 
 	// Attempt to update user if there is an id present
 	// If an id is found this function will execute
 	// and update the user with the id
-	User.findById(req.body.id, function(err, user) {
-		if (err)
-		{
-			res.send(err);
-		}
 
-		user.name = req.body.name;
-		user.save(function (err){
-			if (err) {
+	if(req.body.id != null)
+	{
+		User.findById(req.body.id, function(err, user) 
+		{
+			if (err)
+			{
 				res.send(err);
 			}
-		});
-		res.json(user);
-		
-	});
 
-	var user = new User(); 		// create a new instance of the User model
+			user.name = req.body.name;
+
+			user.save(function (err)
+			{
+				if (err) 
+				{
+					res.send(err);
+				}
+			});
+
+			res.json(user);
+		});
+	}
+
+	else
+	{
+		var user = new User(); 		// create a new instance of the User model
 		// console.dir(req.body.name);
-		if (!req.body.name) {
+		if (!req.body.name) 
+		{
 			var error_message = {code: '2002', message: 'No valid username'}
 			res.send(error_message);
 		} 
 		
-		else {
+		else 
+		{
 			user.name = req.body.name;  // set the bears name (comes from the request)
 			user.password = req.body.password;
-			user.save(function(err) {
-				if (err) {
+			user.save(function(err) 
+			{
+				if (err) 
+				{
 					res.send(err);
 				}
 				res.json({ message: 'User created!' });
 			});
 		}
-		
+	}
 });
 
 
