@@ -30,8 +30,7 @@ app.get('/', function(req, res) {
 });
 
 
-app.post('/user', function(req, res) 
-{
+app.post('/user', function(req, res) {
 
 	// Attempt to update user if there is an id present
 	// If an id is found this function will execute
@@ -151,10 +150,8 @@ app.post('/payment', function(req, res)
 	    	currency : "USD"
 		}, 
 
-		function(errData, data)
-		{
-	    	if(errData)
-	    	{
+		function(errData, data) {
+	    	if(errData) {
 		        res.send("Error Message: " + errData.data.error.message);
 		        // handle the error
 		        return;
@@ -196,6 +193,6 @@ app.post('/payment', function(req, res)
 
 var port = Number(process.env.PORT || 5000);
 app.listen(port, function() {
- console.log("Listening on " + port);
+	console.log("Listening on " + port);
 });
 
