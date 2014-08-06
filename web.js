@@ -38,7 +38,7 @@ app.post('/user', function(req, res)
 	// and update the user with the id
 
 	if(req.body.id != null)
-	{
+	{ // update of existing user
 		User.findById(req.body.id, function(err, user) 
 		{
 			if (err)
@@ -47,6 +47,18 @@ app.post('/user', function(req, res)
 			}
 
 			user.name = req.body.name;
+			user.password = req.body.password;
+			user.creditCardNumber = req.body.creditCardNumber;
+			user.expMonth = req.body.expMonth;
+			user.expYear = req.body.expYear;
+			user.cardVeriCode = req.body.cardVeriCode;
+			// req.body.removalPlate boolean - true or false
+			console.log(req.body.removalPlate);
+			if (eval(req.body.removalPlate)) {
+				user.numberPlates.remove(req.body.numberPlate);
+			} else {
+				user.numberPlates.push(req.body.numberPlate);
+			}
 
 			user.save(function (err)
 			{
@@ -61,23 +73,23 @@ app.post('/user', function(req, res)
 	}
 
 	else
-	{
+	{ // creation of user
+
+		// make sure the user is having the required data
+		// a name would be usefull, credit card and other details
+
 		var user = new User(); 		// create a new instance of the User model
 		// console.dir(req.body.name);
-		if (!req.body.name) 
-		{
+		if (!req.body.name) {
 			var error_message = {code: '2002', message: 'No valid username'}
 			res.send(error_message);
-		} 
-		
-		else 
-		{
+		} else {
 			user.name = req.body.name;  // set the bears name (comes from the request)
 			user.password = req.body.password;
-			user.save(function(err) 
-			{
-				if (err) 
-				{
+			user.email = req.body.email;
+
+			user.save(function(err) {
+				if (err) {
 					res.send(err);
 				}
 				res.json({ message: 'User created!' });
@@ -118,38 +130,39 @@ app.post('/update', function(req, res) {
 
 app.post('/payment', function(req, res)
 {
-	var Simplify = require("simplify-commerce"),
-	client = Simplify.getClient(
-	{
-    	publicKey: 'sbpb_YjcyYTMxMzgtNjIzZi00MGIwLTgxZDgtMGI4YWEzZTBiYjg2',
-    	privateKey: 'ySik0pbUmWIh0ofOmMoIhj4EUBqwD9jRfXYsh+xnyat5YFFQL0ODSXAOkNtXTToq'
+	// numberPlate 		> the number plate of the car to make the payment
+	// amount			> amount of the payment IN CENTS
+
+
+	User.find({numberPlates: req.body.numberPlate}, function(err, user) {
+		config.SimplifyPay.payment.create({
+	    	amount : req.body.amount,
+	    	description : "Test payment",
+	    	card : 
+	    	{
+	       		expMonth : user[0].expMonth,
+	       		expYear : user[0].expYear,
+	       		cvc : user[0].cardVeriCode,
+	       		number : user[0].creditCardNumber
+	    	},
+	    	currency : "USD"
+		}, 
+
+		function(errData, data)
+		{
+	    	if(errData)
+	    	{
+		        res.send("Error Message: " + errData.data.error.message);
+		        // handle the error
+		        return;
+	    	}
+	    	res.send("Payment Status: " + data.paymentStatus);
+		});
+
+		// res.send("Test payment");
 	});
 
-	client.payment.create({
-    	amount : req.body.amount,
-    	description : "Test payment",
-    	card : 
-    	{
-       		expMonth : "11",
-       		expYear : "19",
-       		cvc : "123",
-       		number : req.body.cardnumber
-    	},
-    	currency : "USD"
-	}, 
 
-	function(errData, data)
-	{
-    	if(errData)
-    	{
-	        console.error("Error Message: " + errData.data.error.message);
-	        // handle the error
-	        return;
-    	}
-    	console.log("Payment Status: " + data.paymentStatus);
-	});
-
-	res.send("Test payment");
 });
 
 // app.configure(function () {
