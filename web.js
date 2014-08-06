@@ -95,7 +95,7 @@ app.get('/users', function(req, res) {
 	});
 });
 
-// MADA DOing a funny Test :) 
+// MADA Doing a funny Test :) 
 // add some more magic to this 
 
 app.post('/update', function(req, res) {
@@ -116,6 +116,41 @@ app.post('/update', function(req, res) {
 	});
 });
 
+app.post('/payment', function(req, res)
+{
+	var Simplify = require("simplify-commerce"),
+	client = Simplify.getClient(
+	{
+    	publicKey: 'sbpb_YjcyYTMxMzgtNjIzZi00MGIwLTgxZDgtMGI4YWEzZTBiYjg2',
+    	privateKey: 'ySik0pbUmWIh0ofOmMoIhj4EUBqwD9jRfXYsh+xnyat5YFFQL0ODSXAOkNtXTToq'
+	});
+
+	client.payment.create({
+    	amount : req.body.amount,
+    	description : "Test payment",
+    	card : 
+    	{
+       		expMonth : "11",
+       		expYear : "19",
+       		cvc : "123",
+       		number : req.body.cardnumber
+    	},
+    	currency : "USD"
+	}, 
+
+	function(errData, data)
+	{
+    	if(errData)
+    	{
+	        console.error("Error Message: " + errData.data.error.message);
+	        // handle the error
+	        return;
+    	}
+    	console.log("Payment Status: " + data.paymentStatus);
+	});
+
+	res.send("Test payment");
+});
 
 // app.configure(function () {
 //   app.use(express.bodyParser());
