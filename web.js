@@ -134,7 +134,10 @@ app.post('/payment', function(req, res)
 // make sure there's a handle for the no users found and also that there can no be the same number plate in the system twice
 	User.find({numberPlates: req.body.numberPlate}, function(err, users) {
 		// check that there is only one user returned from the DB
-		var user = users[0];
+		var user = null;
+		if (users.length == 1) {
+			user = users[0];
+		}
 		config.SimplifyPay.payment.create({
 	    	amount : req.body.amount,
 	    	description : "Test payment",
