@@ -80,6 +80,8 @@ app.get('/users', function(req, res) {
 	});
 });
 
+// MADA DOing a funny Test :) 
+// add some more magic to this 
 
 app.post('/update', function(req, res) {
 	User.findById(req.body.id, function(err, user) {
