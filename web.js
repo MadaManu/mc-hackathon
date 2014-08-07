@@ -60,7 +60,24 @@ app.post('/user', function(req, res) {
 				if (eval(req.body.removalPlate)) {
 					user.numberPlates.remove(req.body.numberPlate);
 				} else {
-					user.numberPlates.push(req.body.numberPlate);
+
+					// Mada it might be best off if you double check my 
+					// implementation on the following. It is supposed to check
+					// that there is no registration plate in the db the 
+					// same as what was taken in
+
+					User.find({numberPlates: req.body.numberPlate}, function(err, users) {	// Check users in the DB for the same number plate
+						// Return an array of users with matching plates
+
+						// If this array is not empty
+						// it contains a matching number plate
+						if (users.length > 0) {
+							// var error_message = 
+							res.json({code: "301", message: "Number plate already exists in DB"});	// and throws an error
+						} else {
+							user.numberPlates.push(req.body.numberPlate);
+						}
+					});
 				}
 			}
 
@@ -125,8 +142,7 @@ app.post('/update', function(req, res) {
 	});
 });
 
-app.post('/payment', function(req, res)
-{
+app.post('/payment', function(req, res) {
 	// numberPlate 		> the number plate of the car to make the payment
 	// amount			> amount of the payment IN CENTS
 
