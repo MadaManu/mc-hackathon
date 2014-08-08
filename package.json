@@ -14,7 +14,8 @@
     "logfmt": "~1.1.2",
     "mongodb": "^1.4.7",
     "mongoose": "^3.8.14",
-    "simplify-commerce": "~1.1.2"
+    "simplify-commerce": "~1.1.2",
+    "passport": "~0.2.0"
   },
   "engines": {
     "node": "0.10.x"

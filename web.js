@@ -5,6 +5,7 @@ var config = require("./config");
 var User = require('./models/user');
 var bodyParser = require('body-parser');
 var app = express();
+var passport = require('passport');
 mongoose.connect(config.mongoUri);
 
 // mongo.connect(config.mongoUri, function(err, db) {
@@ -73,7 +74,9 @@ app.post('/user', function(req, res) {
 						// it contains a matching number plate
 						if (users.length > 0) {
 							// var error_message = 
-							res.json({code: "301", message: "Number plate already exists in DB"});	// and throws an error
+							// FIX THIS!!!
+							console.log("Already in DB on another or current account - look for fix");
+							// res.json({code: "301", message: "Number plate already exists in DB"});	// and throws an error
 						} else {
 							user.numberPlates.push(req.body.numberPlate);
 						}
@@ -115,11 +118,25 @@ app.post('/user', function(req, res) {
 	}
 });
 
+app.post('/login', function(req, res)
+{
+	// Check username is in system
+	// 		If true check password matches
+	// 			If true create tokena, log user in
+	//			If flase return error
+	// 		If false return error
+});
+
+app.post('/logout', function(req, res)
+{
+
+});
 
 app.get('/user', function(req, res) {
 	User.find(function(err, users) {
-		if (err)
+		if (err) {
 			res.send(err);
+		}
 		res.json(users);
 	});
 });
@@ -180,14 +197,6 @@ app.post('/payment', function(req, res) {
 
 
 });
-
-// app.configure(function () {
-//   app.use(express.bodyParser());
-//   app.use(express.methodOverride());
-//   app.use(app.router);
-//   app.use(express.static(path.join(application_root, "public")));
-//   app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
-// });
 
 // app.get('/add/:name', function(req, res) {
 //  mongo.Db.connect(mongoUri, function (err, db) {
