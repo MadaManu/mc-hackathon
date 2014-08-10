@@ -15,7 +15,8 @@
     "mongodb": "^1.4.7",
     "mongoose": "^3.8.14",
     "simplify-commerce": "~1.1.2",
-    "passport": "~0.2.0"
+    "passport": "~0.2.0",
+    "passport-local": "~1.0.0"
   },
   "engines": {
     "node": "0.10.x"
