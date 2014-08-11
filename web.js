@@ -27,11 +27,11 @@ mongoose.connect(config.mongoUri);
 app.use(bodyParser());
 app.use(logfmt.requestLogger());
 
-app.configure(function() {
-	// Initialize passport for authentication
-	app.use(passport.initialize());
-	app.use(passport.session());
-});
+// app.configure(function() {
+// 	// Initialize passport for authentication
+// 	app.use(passport.initialize());
+// 	app.use(passport.session());
+// });
 
 // Configuring passport how to check whether the email
 // and password are correct
