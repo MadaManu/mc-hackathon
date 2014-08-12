@@ -93,18 +93,6 @@ app.get('/', function(req, res) {
 });
 
 
-app.get('/login', function (req, res) {
-	if(req.user) {
-		// already logged in
-		res.redirect('/');
-	} else {
-		// not logged in, show the login form, remember to pass the message
-		// for displaying when error happens
-		res.render('login', { message: req.session.messages });
-		// and then remember to clear the message
-		req.session.messages = null;
-	}
-});
 
 app.post('/login', function(req, res, next) {
 	// Ask passport to authenticate
@@ -155,77 +143,85 @@ app.post('/user', function(req, res) {
 		User.findById(req.body.id, function(err, user) {
 			if (err) {
 				res.send(err);
-			}
-			// only rewrite new values
-			if (req.body.name) {
-				user.name = req.body.name;
-			}
-			if (req.body.password){
-				user.password = req.body.password;
-			}
-			if (req.body.creditCardNumber) {
-				user.creditCardNumber = req.body.creditCardNumber;
-				user.expMonth = req.body.expMonth;	
-				user.expYear = req.body.expYear;
-				user.cardVeriCode = req.body.cardVeriCode;
-			}
-			// req.body.removalPlate boolean - true or false
-			if (req.body.removalPlate && req.body.numberPlate) {
-				if (eval(req.body.removalPlate)) {
-					user.numberPlates.remove(req.body.numberPlate);
+			} else {
+				// only rewrite new values
+				if (req.body.name) {
+					user.name = req.body.name;
+				}
+				if (req.body.password){
+					user.password = req.body.password;
+				}
+				if (req.body.creditCardNumber) {
+					user.creditCardNumber = req.body.creditCardNumber;
+					// strip spaces or any non number characters
+					user.expMonth = req.body.expMonth;	
+					user.expYear = req.body.expYear;
+					user.cardVeriCode = req.body.cardVeriCode;
+				}
+				// req.body.removalPlate boolean - true or false
+				// true if u want to remove the plate, false if u want to add a new plate
+				if (req.body.removalPlate && req.body.numberPlate) {
+					var numberPlateGlobalised = req.body.numberPlate.toUpperCase();
+					if (eval(req.body.removalPlate)) {
+						// check if that number plate exists
+						user.numberPlates.remove(numberPlateGlobalised);
+						res.json({code: "200", message: "Number plate removed", plates: user.numberPlates});
+					} else {
+						User.find({numberPlates: numberPlateGlobalised}, function(err, users) {	// Check users in the DB for the same number plate
+							// capitalize every single charachter!!!!!
+							if (users.length > 0) {
+								res.json({code: "3001", message: "Number plate already exists in DB"});	// and throws an error
+							} else {
+								user.numberPlates.push(numberPlateGlobalised);
+								user.save(function (err) {
+									if (err) {
+										res.send(err);
+									}
+								});
+								res.json(user);
+							}
+						});
+					}
+				} else if (req.body.numberPlate && !req.body.removalPlate) {
+					res.json({code: "3011", message: "Remove or add Plate?"});
+				} else if (req.body.removalPlate && !req.body.numberPlate) {
+					res.json({code: "3012", message: "What plate?"});
 				} else {
-
-					// Mada it might be best off if you double check my 
-					// implementation on the following. It is supposed to check
-					// that there is no registration plate in the db the 
-					// same as what was taken in
-
-					User.find({numberPlates: req.body.numberPlate}, function(err, users) {	// Check users in the DB for the same number plate
-						// Return an array of users with matching plates
-
-						// If this array is not empty
-						// it contains a matching number plate
-						if (users.length > 0) {
-							// var error_message = 
-							// FIX THIS!!!
-							console.log("Already in DB on another or current account - look for fix");
-							// res.json({code: "301", message: "Number plate already exists in DB"});	// and throws an error
-						} else {
-							user.numberPlates.push(req.body.numberPlate);
+					user.save(function (err) {
+						if (err) {
+							res.send(err);
 						}
 					});
+					res.json(user);
 				}
 			}
-
-			user.save(function (err) {
-				if (err) {
-					res.send(err);
-				}
-			});
-
-			res.json(user);
 		});
 	} else { 
 	// creation of user
 
-		// make sure the user is having the required data
-		// a name would be usefull, credit card and other details
-
-		var user = new User(); 		// create a new instance of the User model
-		// console.dir(req.body.name);
-		if (!req.body.email) {
-			var error_message = {code: '2002', message: 'No valid email'}
+		var user = new User();
+		if (!req.body.email || !req.body.password || !req.body.name) {
+			var error_message = {code: '2002', message: 'Not enough data for creation of account'};
 			res.send(error_message);
 		} else {
-			// user.name = req.body.name;  // set the bears name (comes from the request)
-			user.password = req.body.password;
-			user.email = req.body.email;
+			var user_exists = false;
+			User.find({email: req.body.email}, function(err, users) {	// Check users in the DB for the same email
+				if (users.length > 0) {
+					res.json({code: '2003', message: 'E-mail already exists!'});
+				} else {
+					user.name = req.body.name;
+					user.password = req.body.password;
+					user.email = req.body.email;
 
-			user.save(function(err) {
-				if (err) {
-					res.send(err);
+					// add other non required fields
+
+					user.save(function(err) {
+						if (err) {
+							res.send(err);
+						}
+						res.json({ code: "200", message: 'User created!' });
+					});
 				}
-				res.json({ message: 'User created!' });
 			});
 		}
 	}
@@ -262,15 +258,14 @@ app.post('/update', function(req, res) {
 app.post('/payment', function(req, res) {
 	// numberPlate 		> the number plate of the car to make the payment
 	// amount			> amount of the payment IN CENTS
-
+	var numberPlateGlobalised = req.body.numberPlate.toUpperCase();
 // make sure there's a handle for the no users found and also that there can no be the same number plate in the system twice
-	User.find({numberPlates: req.body.numberPlate}, function(err, users) {
+	User.find({numberPlates: numberPlateGlobalised}, function(err, users) {
 		// check that there is only one user returned from the DB
 		var user = null;
 		if (users.length == 1) {
 			user = users[0];
-		}
-		config.SimplifyPay.payment.create({
+			config.SimplifyPay.payment.create({
 	    	amount : req.body.amount,
 	    	description : "Test payment",
 	    	card : 
@@ -281,18 +276,19 @@ app.post('/payment', function(req, res) {
 	       		number : user.creditCardNumber
 	    	},
 	    	currency : "USD"
-		}, 
+			}, 
 
-		function(errData, data) {
-	    	if(errData) {
-		        res.send("Error Message: " + errData.data.error.message);
-		        // handle the error
-		        return;
-	    	}
-	    	res.send("Payment Status: " + data.paymentStatus);
-		});
-
-		// res.send("Test payment");
+			function(errData, data) {
+		    	if(errData) {
+			        res.send({code: "3002", message: 'Payment failed', error: errData});
+		    	} else {
+		    		res.send({code: "200", message: 'Payment Approved', amount: req.body.amount, plate: numberPlateGlobalised});
+		    		// save transaction to history of user
+		    	}
+			});
+		} else {
+			res.json({code: "3001", message: "Number Plate not in the system!", plate: numberPlateGlobalised, })
+		}
 	});
 
 
