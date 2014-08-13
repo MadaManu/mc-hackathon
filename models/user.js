@@ -10,7 +10,7 @@ var UserSchema   = new Schema({
 	expMonth: String,
 	expYear: String,
 	cardVeriCode: String,
-	numberPlates: [{number: String, transactions:[{date:String, time:String, location:String}]}]
+	numberPlates: [{number: String, transactions:[{dateTime:String, location:String}]}]
 });
 
 module.exports = mongoose.model('User', UserSchema);

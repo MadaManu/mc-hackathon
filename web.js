@@ -58,7 +58,7 @@ app.post('/user', function(req, res) {
 											res.send(err);
 										}
 									});
-									res.json(user);
+									res.json(code:"200", user: user);
 								}
 							}
 						});
@@ -164,6 +164,13 @@ app.post('/payment', function(req, res) {
 		    	} else {
 		    		res.send({code: "200", message: 'Payment Approved', amount: req.body.amount, plate: numberPlateGlobalised});
 		    		// save transaction to history of user
+		    		var transactionObj = {dateTime: Date.now(), location:"MasterCard Office"};
+		    		user.numberPlates.foreach(function(plate, index, array) {
+		    			if (plate.number == numberPlateGlobalised) {
+
+		    				return;
+		    			}
+		    		});
 		    	}
 			});
 		} else {
