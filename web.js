@@ -5,139 +5,16 @@ var config = require("./config");
 var User = require('./models/user');
 var bodyParser = require('body-parser');
 var app = express();
-var passport = require('passport');
-var LocalStrategy = require('passport-local').Strategy;
 mongoose.connect(config.mongoUri);
-
-// mongo.connect(config.mongoUri, function(err, db) {
-// 	if (err) {
-// 		return console.dir(err);
-// 	}
-// 	db.createCollection('test', function(err, collection) {
-// 		if (err) {
-// 			return console.dir(err);
-// 		}
-// 		// db.collection('test', function(err, collection) {}
-// 		return console.dir("YEEEEEEY!!!!");
-// 	});
-// });
-
-// var User = require('./models/user');
 
 app.use(bodyParser());
 app.use(logfmt.requestLogger());
-
-// app.configure(function() {
-// 	// Initialize passport for authentication
-// 	app.use(passport.initialize());
-// 	app.use(passport.session());
-// });
-
-// Configuring passport how to check whether the email
-// and password are correct
-passport.use(new LocalStrategy({
-		// Set field name here
-		usernameField: 'email',
-		passwordField: 'password'
-	},
-	function(email, password, done) {
-		// Get email and password from input args
-		// Query the user from the database
-		
-		User.find({emails: req.body.email}, function(err, emails) {
-			// check that there is only one email returned from the DB
-			if (emails.length == 1) {
-				// If there is only one email found
-				// that is the user trying to login
-				user = emails[0];
-				if(!hashing.compare(password, user.password)) {
-					// If the passwords don't match
-					return done(null, false, {message: 'Wrong password'});
-				} else {
-					// The passwords do match 
-					// return null as the error and the user
-					return done(null, user);
-				}
-			} else if (emails.length == 0) {
-				// Email does not exist in DB
-				return done(null, false, {message: "The user does not exist"});
-			} else {
-				// There are multiple instances of that email in the DB
-				return done(null, false, {message: "Email is wrongly associated with more than one user"});
-			}
-		});
-	}
-));
-
-passport.serializeUser(function(user, done) {
-	done(null, user.id);
-});
-
-passport.deserializeUser(function(id, done) {
-	// query the current user from database
-	User.find({Users: req.body.id}, function(err, users) {
-		// check that there is only one user returned from the DB
-		var user = null;
-		if (users.length == 1) {
-			user = users[0];
-			done(null, user);
-		} else {
-			done(new Error('User ' + user.id + 'does not exist'));
-		}
-	});
-});
-
 
 app.get('/', function(req, res) {
   res.json("Welcome to the api!");
 });
 
-
-
-app.post('/login', function(req, res, next) {
-	// Ask passport to authenticate
-	passport.authenticate('local', function(err, user, info) {
-		if (err) {
-			// If error happens
-			return next(err);
-		}
-
-		if(!user) {
-			// If authentication fails, get the error message 
-			// and redirect to the login page
-			req.session.messages = info.message;
-			return res.redirect('/login');
-		}
-
-		// If everything is ok
-		req.logIn(user, function(err) {
-			if (err) {
-				req.session.messages = "Error";
-				return next(err);
-			}
-
-			// Set the message
-			req.session.messags = "Login successfully";
-			return res.redirect('/');
-		});
-	})(req, res, next);
-});
-
-app.post('/logout', function(req, res) {
-	if(req.isAuthenticated()) {
-		req.logout();
-		req.session.messages = req.i18n._("Log out successfully");
-	}
-	res.redirect('/');
-});
-
-
 app.post('/user', function(req, res) {
-
-	// Attempt to update user if there is an id present
-	// If an id is found this function will execute
-	// and update the user with the id
-
 	if(req.body.id) { 
 	// update of existing user
 		User.findById(req.body.id, function(err, user) {
@@ -168,7 +45,6 @@ app.post('/user', function(req, res) {
 						res.json({code: "200", message: "Number plate removed", plates: user.numberPlates});
 					} else {
 						User.find({numberPlates: numberPlateGlobalised}, function(err, users) {	// Check users in the DB for the same number plate
-							// capitalize every single charachter!!!!!
 							if (users.length > 0) {
 								res.json({code: "3001", message: "Number plate already exists in DB"});	// and throws an error
 							} else {
