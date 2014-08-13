@@ -42,19 +42,24 @@ app.post('/user', function(req, res) {
 					if (eval(req.body.removalPlate)) {
 						// check if that number plate exists
 						user.numberPlates.remove(numberPlateGlobalised);
-						res.json({code: "200", message: "Number plate removed", plates: user.numberPlates});
+						return res.json({code: "200", message: "Number plate removed", plates: user.numberPlates});
 					} else {
-						User.find({numberPlates: numberPlateGlobalised}, function(err, users) {	// Check users in the DB for the same number plate
-							if (users.length > 0) {
-								res.json({code: "3001", message: "Number plate already exists in DB"});	// and throws an error
+						User.find({ numberPlates: { $elemMatch: { number: numberPlateGlobalised}}}, function(err, users) {	// Check users in the DB for the same number plate
+							if (err){
+								res.json({code:"3003", message:"upppsss error looking for plate"});
 							} else {
-								user.numberPlates.push(numberPlateGlobalised);
-								user.save(function (err) {
-									if (err) {
-										res.send(err);
-									}
-								});
-								res.json(user);
+								if (users.length > 0) {
+									res.json({code: "3001", message: "Number plate already exists in DB"});	// and throws an error
+								} else {
+									var numberPlateObj = {number: numberPlateGlobalised, transaction: []}
+									user.numberPlates.push(numberPlateObj);
+									user.save(function (err) {
+										if (err) {
+											res.send(err);
+										}
+									});
+									res.json(user);
+								}
 							}
 						});
 					}
@@ -74,7 +79,6 @@ app.post('/user', function(req, res) {
 		});
 	} else { 
 	// creation of user
-
 		var user = new User();
 		if (!req.body.email || !req.body.password || !req.body.name) {
 			var error_message = {code: '2002', message: 'Not enough data for creation of account'};
@@ -166,27 +170,34 @@ app.post('/payment', function(req, res) {
 			res.json({code: "3001", message: "Number Plate not in the system!", plate: numberPlateGlobalised, })
 		}
 	});
-
-
 });
 
-// app.get('/add/:name', function(req, res) {
-//  mongo.Db.connect(mongoUri, function (err, db) {
-//    db.collection('first', function(er, collection) {
-//      collection.insert({'name':req.param("name")}, {safe: true}, function (er,rs){
-//      });
-//    });
-//  });
-//  res.send(req.param("name") + ' was added to database!');
-//});
 
-// app.get('/alldata', function(req, res) {
-//  var data = "Maybe nothing fetched";
-//  mongo.Db.connect(mongoUri, function (err, db) {
-//    data = db.getCollectionNames();
-//  });
-//  res.send(data);
-// });
+// POST @ /login
+// > password 		| password of the user to login
+// > email 			| email of user to login
+// << id 			| return id of the logged in user if successfull (code: 200)
+app.post('/login', function(req, res) {
+	if (!req.body.password || !req.body.email) {
+		res.json({code:"400", message:"not enough data!"});
+	} else {
+		User.find({email:req.body.email}, function(err, users) {
+			if (err) {
+				res.json({code:"4000", message:"DB conn failed!"});
+			} else {
+				if (users.length == 1) {
+					if (req.body.password == users[0].password) {
+						res.json({code:"200", id:users[0]._id});
+					} else {
+						res.json({code:"401", message:"Not allowed!"});
+					}
+				}
+
+			}
+		});
+	}
+});
+
 
 var port = Number(process.env.PORT || 5000);
 app.listen(port, function() {
